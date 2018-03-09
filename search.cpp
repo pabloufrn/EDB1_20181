@@ -1,13 +1,15 @@
 #include <iostream>  // cout, endl
 #include <algorithm> // copy
 #include <iterator>  // ostream_iterator, begin(), end()
-#include <cmath>     // sqrt
+#include <cmath>     // sqrt()
+#include <string>    // string, stoi
+#include <vector>
 /// Implements an iterative linear seach on an range [first; last) of integers.
 /*!
  * \param first Pointer to the first element in the range.
  * \param last Pointer past the last valid element in the range.
  * \param value The target value we are looking for within the range.
- * \return A pointer to the target value within the range; or NULL, in case the value is not in the range.
+ * \return A pointer to the target value within the range; or nullptr, in case the value is not in the range.
  */
 
 using namespace std;
@@ -19,7 +21,7 @@ int* lsearch(int *first, int *last, int value )
             return first;
         first++;
     }
-    return NULL; // STUB
+    return nullptr; // STUB
 }
 
 /// Implements an interative binary search on an array of integers.
@@ -27,7 +29,7 @@ int* lsearch(int *first, int *last, int value )
  * \param first Pointer to the first element in the range.
  * \param last Pointer past the last valid element in the range.
  * \param value The target value we are looking for within the range.
- * \return A pointer to the target value within the range; or NULL, in case the value is not in the range.
+ * \return A pointer to the target value within the range; or nullptr, in case the value is not in the range.
  */
 int* bsearch(int *first, int *last, int value )
 {
@@ -51,54 +53,84 @@ int* bsearch(int *first, int *last, int value )
             continue;
         }	
     }
-    return NULL; 
+    return nullptr; 
 }
 
 int* jsearch(int *first, int *last, int value )
 {
-    int n = last-first+1;
+    int n = last-first;
     int m = sqrt(n);
-    int i;
-    int *e;
-    for(i = m; i < n; i+=m){
-        e = first+i;
+    int *e = first+m;
+    while(e <= last){
+        if(e == last){
+            if(value == *(e-1))
+                return e-1;
+            else
+                return nullptr;
+        }
+        //cout << "e: " << *e << "\n last: " << *last << endl;
         if(value == *e)
             return e;
         else if(value < *e)
-            return lsearch(e-i, e, value);
-        else
+            return lsearch(e-m, e, value);
+        else{
+            e+=m;
             continue;
+        }
     }
-    return NULL;
+    return nullptr;
 }
 
 // Driver function.
-int main()
+int main(int argc, char* argv[])
 {
-    int A[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }; // Data container.
-    int targets[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 , -4, 20 }; // Target values for testing.
-    int* (*f[]) (int*, int*, int) = {lsearch, bsearch, jsearch};
-    // Prints out the original data container.
-    cout << "Array: [ ";
-    copy(begin(A), end(A), ostream_iterator<int>( cout , " " ) );
-    cout << "]\n";
-
-    // Executes several searchs in the data container.
-    for(int c = 0; c < 3; c++){
-        cout << "------------------------------\nExecutando algoritmo numero " << c << ".\n------------------------------\n";
-        for( const auto & e : targets )
-        {
-            // Look for target in the entire range.
-            auto result = f[c]( begin(A), end(A), e);
-            // Process the result
-            if (result)
-            {
-                cout << ">>> Found \"" << e << "\" at position "
-                    << distance(begin(A), result) << ".\n";
+    string arg;
+    int start = 0, limit = 10, i, size, n = 10, jump;
+    if(argc > 1){
+        for(int i = 1; i < argc; i++){
+            arg = argv[i];
+            if(arg == "-l" or arg == "--limit"){
+                arg = argv[i+1];
+                limit = stoi(arg, nullptr, 10);
+            }else if(arg == "-n" or arg == "--number"){
+                arg = argv[i+1];
+                n = stoi(arg, nullptr, 10);
+            }else if(arg == "-s" or arg == "--start"){
+                arg = argv[i+1];
+                start = stoi(arg, nullptr, 10);
             }
-            else
+
+        }
+    }
+    jump = ((limit - start)/n);
+    size = start+jump;
+    int* A;
+    A = (int*) malloc(sizeof(int)*limit);
+    for(i = 0; i < limit; i++)
+        A[i] = i;
+    int targets[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 , -4, 20 }; // Target values for testing.
+    int* (*f[]) (int*, int*, int) = {lsearch, jsearch, bsearch};
+    // Executes several searchs in the data container.
+    for(; size < limit; size+=jump){
+        cout << "Array: [ ";
+        copy(A, A+size, ostream_iterator<int>( cout , " " ) );
+        cout << "]\n";
+        for(i = 0; i < 3; i++){
+            cout << "------------------------------\nExecutando algoritmo numero " << i << ".\n------------------------------\n";
+            for( const auto & e : targets )
             {
-                cout << ">>> Value \"" << e << "\" not found in array!\n";
+                // Look for target in the entire range.
+                auto result = f[i]( A, A+size, e);
+                // Process the result
+                if (result)
+                {
+                    cout << ">>> Found \"" << e << "\" at position "
+                        << distance(A, result) << ".\n";
+                }
+                else
+                {
+                    cout << ">>> Value \"" << e << "\" not found in array!\n";
+                }
             }
         }
     }
