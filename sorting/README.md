@@ -10,7 +10,7 @@ This is a test program to run sorting algorithms on ranges.
 
 # Authorship
 
-Program developed by _Put your name here_ (< *your_email@email.com* >), 2018.1
+Program developed by Pablo Emanuell Lopes Targino (< *pabloemanuell2013@hotmail.com* >), 2018.1
 
 &copy; IMD/UFRN 2018.
 
